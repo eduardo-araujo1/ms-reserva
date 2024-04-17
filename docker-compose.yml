@@ -1,0 +1,30 @@
+version: '4'
+services:
+
+  user-db:
+    image: mysql:8.3.0
+    container_name: user-db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=springuser
+      - MYSQL_PASSWORD=ThePassword
+      - MYSQL_DATABASE=user-db
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - "./conf.d:/etc/mysql/conf.d:ro"
+
+  properties-db:
+    image: mysql:8.3.0
+    container_name: properties-db
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_USER=springuser
+      - MYSQL_PASSWORD=ThePassword
+      - MYSQL_DATABASE=properties-db
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - "./conf.d:/etc/mysql/conf.d:ro"
