@@ -11,11 +11,15 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository repository;
     private final UserConverter converter;
+
+    public UserService(UserRepository repository, UserConverter converter) {
+        this.repository = repository;
+        this.converter = converter;
+    }
 
     public UserResponseDto create(UserRequestDto requestDto){
         verifyIsEmailAlreadyRegistered(requestDto.getEmail());
@@ -23,6 +27,12 @@ public class UserService {
         User savedUser = repository.save(userInsert);
         return converter.toDto(savedUser);
 
+    }
+
+    public UserResponseDto findUserByEmail(String email){
+        User findUser = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usúario não encontrado ou não existe"));
+        return converter.toDto(findUser);
     }
 
     private void verifyIsEmailAlreadyRegistered(String email){
