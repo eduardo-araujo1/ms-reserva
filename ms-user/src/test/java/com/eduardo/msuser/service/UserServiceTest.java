@@ -3,6 +3,8 @@ package com.eduardo.msuser.service;
 import com.eduardo.msuser.converter.UserConverter;
 import com.eduardo.msuser.dto.UserRequestDto;
 import com.eduardo.msuser.dto.UserResponseDto;
+import com.eduardo.msuser.exception.EmailAlreadyRegisteredException;
+import com.eduardo.msuser.exception.EmailNotFoundException;
 import com.eduardo.msuser.model.User;
 import com.eduardo.msuser.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -56,7 +57,7 @@ public class UserServiceTest {
 
         when(repository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(RuntimeException.class, () -> service.create(requestDto));
+        assertThrows(EmailAlreadyRegisteredException.class, () -> service.create(requestDto));
         verify(repository, never()).save(any(User.class));
     }
 
@@ -81,6 +82,6 @@ public class UserServiceTest {
 
         when(repository.findByEmail(email)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.findUserByEmail(email));
+        assertThrows(EmailNotFoundException.class, () -> service.findUserByEmail(email));
     }
 }
