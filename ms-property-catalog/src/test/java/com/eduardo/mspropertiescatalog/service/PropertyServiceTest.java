@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.eduardo.mspropertiescatalog.enums.ECity.BERTIOGA;
@@ -83,9 +84,8 @@ public class PropertyServiceTest {
         ECity city = UBATUBA;
         Pageable pageable = PageRequest.of(0, 10);
         List<Property> properties = new ArrayList<>();
-        properties.add(new Property(UUID.randomUUID(), "teste1", 100.00, "title","description1","https://example.com/image.jpg", UBATUBA));;
+        properties.add(new Property(UUID.randomUUID(), "teste1", 100.00, "title","description1","https://example.com/image.jpg", UBATUBA));
         Page<Property> propertyPage = new PageImpl<>(properties);
-
 
         when(repository.findByCity(city, pageable)).thenReturn(propertyPage);
         when(converter.toDto(any(Property.class))).thenAnswer(invocation -> {
@@ -93,13 +93,51 @@ public class PropertyServiceTest {
             return new PropertyResponseDto(property.getId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
         });
 
-
         Page<PropertyResponseDto> result = service.findByCity(city, pageable);
 
         verify(repository, times(1)).findByCity(city, pageable);
-        verify(converter, times(properties.size())).toDto(any(Property.class));
         assertFalse(result.isEmpty());
         assertEquals(properties.size(), result.getNumberOfElements());
+    }
 
+    @Test
+    public void testFindByPrice() {
+        Double minPrice = 100.0;
+        Double maxPrice = 200.0;
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property(UUID.randomUUID(), "teste1", 100.00, "title","description1","https://example.com/image.jpg", UBATUBA));
+        Page<Property> propertyPage = new PageImpl<>(properties);
+
+        when(repository.findBypricePerNightBetween(minPrice, maxPrice, pageable)).thenReturn(propertyPage);
+        when(converter.toDto(any(Property.class))).thenAnswer(invocation -> {
+            Property property = invocation.getArgument(0);
+            return new PropertyResponseDto(property.getId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
+        });
+
+        Page<PropertyResponseDto> result = service.findByPrice(minPrice, maxPrice, pageable);
+
+        verify(repository, times(1)).findBypricePerNightBetween(minPrice, maxPrice, pageable);
+        assertFalse(result.isEmpty());
+        assertEquals(properties.size(), result.getNumberOfElements());
+    }
+
+    @Test
+    public void testUpdateProperty() {
+        String propertyId = UUID.randomUUID().toString();
+        PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
+        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
+        Property updatedProperty = new Property(UUID.fromString(propertyId), propertyDto.address(), propertyDto.pricePerNight(), propertyDto.title(), propertyDto.description(), propertyDto.imageUrl(), propertyDto.city());
+        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(updatedProperty.getId(), updatedProperty.getTitle(), updatedProperty.getAddress(), updatedProperty.getDescription(), updatedProperty.getCity(), updatedProperty.getPricePerNight(), updatedProperty.getImageUrl());
+
+        when(converter.toDto(updatedProperty)).thenReturn(expectedResponseDto);
+        when(repository.findById(UUID.fromString(propertyId))).thenReturn(Optional.of(existingProperty));
+        when(repository.save(any(Property.class))).thenReturn(updatedProperty);
+
+        PropertyResponseDto updatedPropertyDto = service.update(propertyId, propertyDto);
+
+        verify(repository, times(1)).findById(UUID.fromString(propertyId));
+        verify(converter, times(1)).toDto(updatedProperty);
+        assertThat(updatedPropertyDto).isEqualTo(expectedResponseDto);
     }
 }

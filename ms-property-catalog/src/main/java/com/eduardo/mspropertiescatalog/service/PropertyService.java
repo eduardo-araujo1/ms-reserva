@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +43,29 @@ public class PropertyService {
         return propertyPage.map(converter::toDto);
     }
 
+    public Page<PropertyResponseDto> findByPrice(Double minPrice, Double maxPrice, Pageable pageable){
+        Page<Property> propertyPage = repository.findBypricePerNightBetween(minPrice, maxPrice, pageable);
 
+        if (propertyPage.isEmpty()){
+            throw new RuntimeException("Não encontramos nenhum imóvel neste valor.");
+        }
+        return propertyPage.map(converter::toDto);
+    }
+
+    public PropertyResponseDto update(String id, PropertyRequestDto dto){
+        Property property = repository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("Propriedade não encontrada ou não existe."));
+
+        property.setAddress(dto.address());
+        property.setTitle(dto.title());
+        property.setDescription(dto.description());
+        property.setPricePerNight(dto.pricePerNight());
+        property.setCity(dto.city());
+        property.setImageUrl(dto.imageUrl());
+
+        Property updatedProperty = repository.save(property);
+        return converter.toDto(updatedProperty);
+    }
 
 
 }

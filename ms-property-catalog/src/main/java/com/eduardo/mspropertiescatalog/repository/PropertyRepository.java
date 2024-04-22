@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface PropertyRepository extends JpaRepository<Property, UUID> {
 
     Page<Property> findByCity(ECity city, Pageable pageable);
+
+    Page<Property> findBypricePerNightBetween(Double minPrice, Double maxPrice, Pageable pageable);
 }

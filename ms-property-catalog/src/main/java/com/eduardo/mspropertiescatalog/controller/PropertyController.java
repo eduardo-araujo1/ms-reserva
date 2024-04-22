@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -30,15 +31,32 @@ public class PropertyController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Page<PropertyResponseDto>> listAll(@RequestParam int page, @RequestParam int size){
+    public ResponseEntity<Page<PropertyResponseDto>> listAll(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size){
         Page<PropertyResponseDto> returnAll = service.findAll(page, size);
         return ResponseEntity.ok().body(returnAll);
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<Page<PropertyResponseDto>> filterPropertiesByCity(@RequestParam ECity city, Pageable pageable){
+    public ResponseEntity<Page<PropertyResponseDto>> filterPropertiesByCity(@RequestParam ECity city,
+                                                                            @PageableDefault(page = 0, size = 10) Pageable pageable){
         Page<PropertyResponseDto> responseDtos = service.findByCity(city,pageable);
         return ResponseEntity.ok().body(responseDtos);
+    }
+
+    @GetMapping("/price")
+    public ResponseEntity<Page<PropertyResponseDto>> filterPropertiesByPrice(@RequestParam Double minPrice,
+                                                                             @RequestParam Double maxPrice,
+                                                                             @PageableDefault(page = 0, size = 10) Pageable pageable) {
+        Page<PropertyResponseDto> responseDtos = service.findByPrice(minPrice, maxPrice, pageable);
+        return ResponseEntity.ok().body(responseDtos);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PropertyResponseDto> updateProperty(@PathVariable String id,
+                                                              @RequestBody PropertyRequestDto dto){
+        PropertyResponseDto update = service.update(id, dto);
+        return ResponseEntity.ok().body(update);
     }
 
 }
