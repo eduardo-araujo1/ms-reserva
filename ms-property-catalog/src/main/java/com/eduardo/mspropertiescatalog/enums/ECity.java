@@ -1,4 +1,4 @@
-package com.eduardo.mspropertycatalog.enums;
+package com.eduardo.mspropertiescatalog.enums;
 
 public enum ECity {
 

@@ -1,8 +1,8 @@
-package com.eduardo.mspropertycatalog.converter;
+package com.eduardo.mspropertiescatalog.converter;
 
-import com.eduardo.mspropertycatalog.dto.PropertyRequestDto;
-import com.eduardo.mspropertycatalog.dto.PropertyResponseDto;
-import com.eduardo.mspropertycatalog.model.Property;
+import com.eduardo.mspropertiescatalog.dto.PropertyRequestDto;
+import com.eduardo.mspropertiescatalog.dto.PropertyResponseDto;
+import com.eduardo.mspropertiescatalog.model.Property;
 import org.springframework.stereotype.Component;
 
 @Component

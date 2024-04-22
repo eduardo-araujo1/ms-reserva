@@ -1,4 +1,4 @@
-package com.eduardo.mspropertycatalog;
+package com.eduardo.mspropertiescatalog;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

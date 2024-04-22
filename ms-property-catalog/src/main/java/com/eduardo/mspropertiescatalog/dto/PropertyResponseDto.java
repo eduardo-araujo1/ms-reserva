@@ -1,6 +1,6 @@
-package com.eduardo.mspropertycatalog.dto;
+package com.eduardo.mspropertiescatalog.dto;
 
-import com.eduardo.mspropertycatalog.enums.ECity;
+import com.eduardo.mspropertiescatalog.enums.ECity;
 
 import java.util.UUID;
 

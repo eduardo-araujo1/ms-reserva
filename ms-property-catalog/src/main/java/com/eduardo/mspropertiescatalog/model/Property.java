@@ -1,7 +1,6 @@
-package com.eduardo.mspropertycatalog.model;
+package com.eduardo.mspropertiescatalog.model;
 
-import com.eduardo.mspropertycatalog.enums.ECity;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.eduardo.mspropertiescatalog.enums.ECity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
