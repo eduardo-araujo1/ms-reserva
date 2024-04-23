@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -32,6 +31,12 @@ public class PropertyService {
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<Property> propertyPage = repository.findAll(pageRequest);
         return propertyPage.map(converter::toDto);
+    }
+
+    public PropertyResponseDto findById(String id){
+        Property property = repository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("Propriedade não encontrada ou não existe."));
+        return converter.toDto(property);
     }
 
     public Page<PropertyResponseDto> findByCity(ECity city, Pageable pageable){
@@ -67,5 +72,11 @@ public class PropertyService {
         return converter.toDto(updatedProperty);
     }
 
+    public void deleteProperty(String id){
+        if (!repository.existsById(UUID.fromString(id))){
+            throw new RuntimeException("Propriedade não encontrada.");
+        }
+        repository.deleteById(UUID.fromString(id));
+    }
 
 }
