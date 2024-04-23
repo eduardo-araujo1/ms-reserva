@@ -1,7 +1,6 @@
 package com.eduardo.mspropertiescatalog.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.http.HttpStatus;
@@ -15,39 +14,27 @@ import java.util.Map;
 @ToString
 public class ApiErrorMessage{
 
-    private String path;
-    private String method;
     private int status;
-    private String statusText;
     private String message;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Map<String,String> errors;
 
-    public ApiErrorMessage(){
 
-    }
-
-    public ApiErrorMessage(HttpServletRequest request, HttpStatus status, String message){
-        this.path = request.getRequestURI();
-        this.method = request.getMethod();
+    public ApiErrorMessage(HttpStatus status, String message, BindingResult result){
         this.status = status.value();
-        this.statusText = status.getReasonPhrase();
-        this.message = message;
-    }
-
-    public ApiErrorMessage(HttpServletRequest request, HttpStatus status, String message, BindingResult result){
-        this.path = request.getRequestURI();
-        this.method = request.getMethod();
-        this.status = status.value();
-        this.statusText = status.getReasonPhrase();
         this.message = message;
         addErrors(result);
     }
 
+    public ApiErrorMessage(HttpStatus status, String message) {
+        this.status = status.value();
+        this.message = message;
+    }
+
     private void addErrors(BindingResult result) {
-        this.errors = new HashMap<>();
+        errors = new HashMap<>();
         for (FieldError fieldError : result.getFieldErrors()){
-            this.errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
     }
 

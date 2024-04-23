@@ -4,6 +4,8 @@ import com.eduardo.mspropertiescatalog.converter.PropertyConverter;
 import com.eduardo.mspropertiescatalog.dto.PropertyRequestDto;
 import com.eduardo.mspropertiescatalog.dto.PropertyResponseDto;
 import com.eduardo.mspropertiescatalog.enums.ECity;
+import com.eduardo.mspropertiescatalog.exception.AddressAlreadyRegisteredException;
+import com.eduardo.mspropertiescatalog.exception.PropertyNotFoundException;
 import com.eduardo.mspropertiescatalog.model.Property;
 import com.eduardo.mspropertiescatalog.repository.PropertyRepository;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import static com.eduardo.mspropertiescatalog.enums.ECity.BERTIOGA;
 import static com.eduardo.mspropertiescatalog.enums.ECity.UBATUBA;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -41,7 +44,7 @@ public class PropertyServiceTest {
     private PropertyService service;
 
     @Test
-    public void insertProperty() {
+    public void testInsertProperty() {
         PropertyRequestDto dto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
         Property propertyEntity = new Property(UUID.randomUUID(), dto.address(), dto.pricePerNight(), dto.title(), dto.description(), dto.imageUrl(), dto.city());
 
@@ -59,6 +62,20 @@ public class PropertyServiceTest {
         assertEquals(propertyEntity.getCity(), insertProperty.city());
         verify(repository, times(1)).save(any(Property.class));
     }
+
+    @Test
+    public void testInsertProperty_AddressAlreadyRegistered() {
+        String NAME = "teste123";
+        PropertyRequestDto dto = new PropertyRequestDto("teste", NAME, "teste", UBATUBA, 100.50, "http://teste.com");
+
+        when(repository.findByAddress(NAME)).thenThrow(AddressAlreadyRegisteredException.class);
+
+        assertThatThrownBy(() -> service.registerProperty(dto)).isInstanceOf(AddressAlreadyRegisteredException.class);
+
+        verify(repository, never()).save(any(Property.class));
+        verify(repository, times(1)).findByAddress(NAME);
+    }
+
 
     @Test
     public void testFindAll() {
@@ -80,6 +97,31 @@ public class PropertyServiceTest {
     }
 
     @Test
+    public void testFindById() {
+        String propertyId = UUID.randomUUID().toString();
+        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
+        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(existingProperty.getId(), existingProperty.getTitle(), existingProperty.getAddress(), existingProperty.getDescription(), existingProperty.getCity(), existingProperty.getPricePerNight(), existingProperty.getImageUrl());
+
+        when(repository.findById(UUID.fromString(propertyId))).thenReturn(Optional.of(existingProperty));
+        when(converter.toDto(existingProperty)).thenReturn(expectedResponseDto);
+
+        PropertyResponseDto foundPropertyDto = service.findById(propertyId);
+
+        assertThat(foundPropertyDto).isEqualTo(expectedResponseDto);
+    }
+
+    @Test
+    public void testFindById_PropertyNotFound() {
+        String nonExistentPropertyId = UUID.randomUUID().toString();
+
+        when(repository.findById(UUID.fromString(nonExistentPropertyId))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.findById(nonExistentPropertyId))
+                .isInstanceOf(PropertyNotFoundException.class)
+                .hasMessage("Propriedade não encontrada ou não existe.");
+    }
+
+    @Test
     public void testFindByCity() {
         ECity city = UBATUBA;
         Pageable pageable = PageRequest.of(0, 10);
@@ -98,6 +140,18 @@ public class PropertyServiceTest {
         verify(repository, times(1)).findByCity(city, pageable);
         assertFalse(result.isEmpty());
         assertEquals(properties.size(), result.getNumberOfElements());
+    }
+
+    @Test
+    public void testFindByCity_NoPropertiesFound() {
+        ECity city = UBATUBA;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(repository.findByCity(city, pageable)).thenReturn(Page.empty());
+
+        assertThatThrownBy(() -> service.findByCity(city, pageable))
+                .isInstanceOf(PropertyNotFoundException.class)
+                .hasMessage("Nenhuma propriedade encontrada nesta cidade.");
     }
 
     @Test
@@ -123,6 +177,19 @@ public class PropertyServiceTest {
     }
 
     @Test
+    public void testFindByPrice_NoPropertiesFound() {
+        Double minPrice = 100.0;
+        Double maxPrice = 200.0;
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(repository.findBypricePerNightBetween(minPrice, maxPrice, pageable)).thenReturn(Page.empty());
+
+        assertThatThrownBy(() -> service.findByPrice(minPrice, maxPrice, pageable))
+                .isInstanceOf(PropertyNotFoundException.class)
+                .hasMessage("Não encontramos nenhum imóvel neste valor.");
+    }
+
+    @Test
     public void testUpdateProperty() {
         String propertyId = UUID.randomUUID().toString();
         PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
@@ -142,6 +209,20 @@ public class PropertyServiceTest {
     }
 
     @Test
+    public void testUpdateProperty_PropertyNotFound() {
+        String nonExistingPropertyId = UUID.randomUUID().toString();
+        PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
+
+        when(repository.findById(UUID.fromString(nonExistingPropertyId))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(nonExistingPropertyId, propertyDto))
+                .isInstanceOf(PropertyNotFoundException.class)
+                .hasMessage("Propriedade não encontrada ou não existe.");
+
+        verify(repository, times(1)).findById(UUID.fromString(nonExistingPropertyId));
+    }
+
+    @Test
     public void testDeleteProperty() {
         String propertyId = UUID.randomUUID().toString();
 
@@ -152,16 +233,17 @@ public class PropertyServiceTest {
     }
 
     @Test
-    public void testFindById() {
-        String propertyId = UUID.randomUUID().toString();
-        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
-        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(existingProperty.getId(), existingProperty.getTitle(), existingProperty.getAddress(), existingProperty.getDescription(), existingProperty.getCity(), existingProperty.getPricePerNight(), existingProperty.getImageUrl());
+    public void testDeleteProperty_PropertyNotFound() {
+        String nonExistingPropertyId = UUID.randomUUID().toString();
 
-        when(repository.findById(UUID.fromString(propertyId))).thenReturn(Optional.of(existingProperty));
-        when(converter.toDto(existingProperty)).thenReturn(expectedResponseDto);
+        when(repository.existsById(UUID.fromString(nonExistingPropertyId))).thenReturn(false);
 
-        PropertyResponseDto foundPropertyDto = service.findById(propertyId);
+        assertThatThrownBy(() -> service.deleteProperty(nonExistingPropertyId))
+                .isInstanceOf(PropertyNotFoundException.class)
+                .hasMessage("Propriedade não encontrada ou não existe");
 
-        assertThat(foundPropertyDto).isEqualTo(expectedResponseDto);
+        verify(repository, times(1)).existsById(UUID.fromString(nonExistingPropertyId));
+        verify(repository, never()).deleteById(any(UUID.class));
     }
+
 }

@@ -13,29 +13,28 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ApiExceptionHandler {
 
     @ExceptionHandler(AddressAlreadyRegisteredException.class)
-    public ResponseEntity<ApiErrorMessage> addressException(AddressAlreadyRegisteredException exception, HttpServletRequest request){
+    public ResponseEntity<ApiErrorMessage> addressException(AddressAlreadyRegisteredException exception){
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ApiErrorMessage(request, HttpStatus.CONFLICT, exception.getMessage()));
+                .body(new ApiErrorMessage( HttpStatus.CONFLICT, exception.getMessage()));
     }
 
     @ExceptionHandler(PropertyNotFoundException.class)
-    public ResponseEntity<ApiErrorMessage> propertyNotFound(PropertyNotFoundException exception,HttpServletRequest request){
+    public ResponseEntity<ApiErrorMessage> propertyNotFound(PropertyNotFoundException exception){
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ApiErrorMessage(request, HttpStatus.NOT_FOUND, exception.getMessage()));
+                .body(new ApiErrorMessage(HttpStatus.NOT_FOUND, exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorMessage> methodArgumentNotValid(MethodArgumentNotValidException exception,
-                                                                  HttpServletRequest request,
                                                                   BindingResult result){
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ApiErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY,"Campo(s) inválidos", result));
+                .body(new ApiErrorMessage(HttpStatus.UNPROCESSABLE_ENTITY,"Campo(s) inválidos", result));
     }
 
 }
