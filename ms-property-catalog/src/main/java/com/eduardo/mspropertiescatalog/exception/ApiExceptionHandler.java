@@ -1,4 +1,4 @@
-package com.eduardo.msuser.exception;
+package com.eduardo.mspropertiescatalog.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -12,17 +12,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler(EmailAlreadyRegisteredException.class)
-    public ResponseEntity<ApiErrorMessage> emailException(EmailAlreadyRegisteredException exception, HttpServletRequest request){
+    @ExceptionHandler(AddressAlreadyRegisteredException.class)
+    public ResponseEntity<ApiErrorMessage> addressException(AddressAlreadyRegisteredException exception, HttpServletRequest request){
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ApiErrorMessage(request, HttpStatus.CONFLICT, exception.getMessage()));
-
     }
 
-    @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<ApiErrorMessage> emailNotFound(EmailNotFoundException exception, HttpServletRequest request){
+    @ExceptionHandler(PropertyNotFoundException.class)
+    public ResponseEntity<ApiErrorMessage> propertyNotFound(PropertyNotFoundException exception,HttpServletRequest request){
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -32,10 +31,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorMessage> methodArgumentNotValid(MethodArgumentNotValidException exception,
                                                                   HttpServletRequest request,
-                                                                  BindingResult result) {
+                                                                  BindingResult result){
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ApiErrorMessage(request,HttpStatus.UNPROCESSABLE_ENTITY, "Campo(s) inválido(s)", result));
+                .body(new ApiErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY,"Campo(s) inválidos", result));
     }
+
 }

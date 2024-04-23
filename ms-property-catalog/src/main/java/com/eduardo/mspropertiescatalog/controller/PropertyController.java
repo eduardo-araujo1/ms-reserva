@@ -4,6 +4,7 @@ import com.eduardo.mspropertiescatalog.dto.PropertyRequestDto;
 import com.eduardo.mspropertiescatalog.dto.PropertyResponseDto;
 import com.eduardo.mspropertiescatalog.enums.ECity;
 import com.eduardo.mspropertiescatalog.service.PropertyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ public class PropertyController {
     private final PropertyService service;
 
     @PostMapping
-    public ResponseEntity<PropertyResponseDto> create(@RequestBody PropertyRequestDto dto){
+    public ResponseEntity<PropertyResponseDto> create(@Valid @RequestBody PropertyRequestDto dto){
         var propertyDto = service.registerProperty(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{title}")
                 .buildAndExpand(dto.title()).toUri();

@@ -1,4 +1,4 @@
-package com.eduardo.msuser.exception;
+package com.eduardo.mspropertiescatalog.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.servlet.http.HttpServletRequest;
