@@ -28,3 +28,17 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
       - "./conf.d:/etc/mysql/conf.d:ro"
+
+  reservation-db:
+    image: mysql:8.3.0
+    container_name: reservation-db
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      - MYSQL_USER=springuser
+      - MYSQL_PASSWORD=ThePassword
+      - MYSQL_DATABASE=reservation-db
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - "./conf.d:/etc/mysql/conf.d:ro"
