@@ -9,12 +9,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="ms-property-catalog" />
         <module name="ms-user" />
+        <module name="ms-reservation" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ms-property-catalog" options="-parameters" />
+      <module name="ms-reservation" options="-parameters" />
       <module name="ms-user" options="-parameters" />
     </option>
   </component>

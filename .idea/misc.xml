@@ -6,6 +6,7 @@
       <list>
         <option value="$PROJECT_DIR$/ms-user/pom.xml" />
         <option value="$PROJECT_DIR$/ms-property-catalog/pom.xml" />
+        <option value="$PROJECT_DIR$/ms-reservation/pom.xml" />
       </list>
     </option>
   </component>
