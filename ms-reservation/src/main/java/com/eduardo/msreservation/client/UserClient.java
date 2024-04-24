@@ -1,17 +1,15 @@
 package com.eduardo.msreservation.client;
 
-import com.eduardo.msreservation.dto.UserDetailsDto;
+import com.eduardo.msreservation.client.dto.UserInfoDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.UUID;
-
-@FeignClient(value = "user-service", url = "${user-service.url}")
+@FeignClient(value = "ms-user", url = "${user-service.url}")
 public interface UserClient {
 
-    @GetMapping(value = "/v1/users/{userId}")
-    UserDetailsDto getUserDetails(@PathVariable String userId);
+    @GetMapping(value = "v1/users", params = "userId")
+    UserInfoDto getUserDetails(@RequestParam("userId") String userId);
 
 
 }

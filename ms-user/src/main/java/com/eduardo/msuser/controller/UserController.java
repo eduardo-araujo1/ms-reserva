@@ -32,8 +32,8 @@ public class UserController {
         return ResponseEntity.ok().body(findUser);
     }
 
-    @GetMapping("{userId}")
-    public ResponseEntity<UserResponseDto> findById(@PathVariable String userId){
+    @GetMapping(params = "userId")
+    public ResponseEntity<UserResponseDto> findById(@RequestParam String userId){
         UserResponseDto findById = service.findById(userId);
         return ResponseEntity.ok().body(findById);
     }
