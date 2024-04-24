@@ -22,7 +22,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto> registerUser(@Valid @RequestBody UserRequestDto dto){
         var userDto = service.create(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{name}")
-                .buildAndExpand(dto.getName()).toUri();
+                .buildAndExpand(dto.name()).toUri();
         return ResponseEntity.created(uri).body(userDto);
     }
 
@@ -30,5 +30,11 @@ public class UserController {
     public ResponseEntity<UserResponseDto> findUserByEmail(@RequestParam String email){
         var findUser = service.findUserByEmail(email);
         return ResponseEntity.ok().body(findUser);
+    }
+
+    @GetMapping("{userId}")
+    public ResponseEntity<UserResponseDto> findById(@PathVariable String userId){
+        UserResponseDto findById = service.findById(userId);
+        return ResponseEntity.ok().body(findById);
     }
 }

@@ -39,9 +39,9 @@ public class PropertyController {
         return ResponseEntity.ok().body(returnAll);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PropertyResponseDto> findById(@PathVariable String id){
-        PropertyResponseDto findById = service.findById(id);
+    @GetMapping("/{propertyId}")
+    public ResponseEntity<PropertyResponseDto> findById(@PathVariable String propertyId){
+        PropertyResponseDto findById = service.findById(propertyId);
         return ResponseEntity.ok().body(findById);
     }
 
@@ -61,15 +61,15 @@ public class PropertyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PropertyResponseDto> updateProperty(@PathVariable String id,
+    public ResponseEntity<PropertyResponseDto> updateProperty(@PathVariable String propertyId,
                                                               @RequestBody PropertyRequestDto dto){
-        PropertyResponseDto update = service.update(id, dto);
+        PropertyResponseDto update = service.update(propertyId, dto);
         return ResponseEntity.ok().body(update);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<PropertyResponseDto> deleteProperty(@PathVariable String id){
-        service.deleteProperty(id);
+    @DeleteMapping("/{propertyId}")
+    public ResponseEntity<PropertyResponseDto> deleteProperty(@PathVariable String propertyId){
+        service.deleteProperty(propertyId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

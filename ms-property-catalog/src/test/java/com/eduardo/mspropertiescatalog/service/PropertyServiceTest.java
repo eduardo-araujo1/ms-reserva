@@ -50,14 +50,14 @@ public class PropertyServiceTest {
 
         when(converter.toModel(any(PropertyRequestDto.class))).thenReturn(propertyEntity);
         when(repository.save(any(Property.class))).thenReturn(propertyEntity);
-        when(converter.toDto(any(Property.class))).thenReturn(new PropertyResponseDto(propertyEntity.getId(), propertyEntity.getTitle(),
+        when(converter.toDto(any(Property.class))).thenReturn(new PropertyResponseDto(propertyEntity.getPropertyId(), propertyEntity.getTitle(),
                 propertyEntity.getAddress(), propertyEntity.getDescription(), propertyEntity.getCity(), propertyEntity.getPricePerNight(),
                 propertyEntity.getImageUrl()));
 
         var insertProperty = service.registerProperty(dto);
 
         assertNotNull(insertProperty);
-        assertEquals(propertyEntity.getId(), insertProperty.id());
+        assertEquals(propertyEntity.getPropertyId(), insertProperty.propertyId());
         assertEquals(propertyEntity.getPricePerNight(), insertProperty.pricePerNight());
         assertEquals(propertyEntity.getCity(), insertProperty.city());
         verify(repository, times(1)).save(any(Property.class));
@@ -87,7 +87,7 @@ public class PropertyServiceTest {
         when(repository.findAll(any(PageRequest.class))).thenReturn(propertiesPage);
         when(converter.toDto(any(Property.class))).thenAnswer(invocation -> {
             Property property = invocation.getArgument(0);
-            return new PropertyResponseDto(property.getId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
+            return new PropertyResponseDto(property.getPropertyId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
         });
 
         Page<PropertyResponseDto> result = service.findAll(0, 10);
@@ -100,7 +100,7 @@ public class PropertyServiceTest {
     public void testFindById() {
         String propertyId = UUID.randomUUID().toString();
         Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
-        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(existingProperty.getId(), existingProperty.getTitle(), existingProperty.getAddress(), existingProperty.getDescription(), existingProperty.getCity(), existingProperty.getPricePerNight(), existingProperty.getImageUrl());
+        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(existingProperty.getPropertyId(), existingProperty.getTitle(), existingProperty.getAddress(), existingProperty.getDescription(), existingProperty.getCity(), existingProperty.getPricePerNight(), existingProperty.getImageUrl());
 
         when(repository.findById(UUID.fromString(propertyId))).thenReturn(Optional.of(existingProperty));
         when(converter.toDto(existingProperty)).thenReturn(expectedResponseDto);
@@ -132,7 +132,7 @@ public class PropertyServiceTest {
         when(repository.findByCity(city, pageable)).thenReturn(propertyPage);
         when(converter.toDto(any(Property.class))).thenAnswer(invocation -> {
             Property property = invocation.getArgument(0);
-            return new PropertyResponseDto(property.getId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
+            return new PropertyResponseDto(property.getPropertyId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
         });
 
         Page<PropertyResponseDto> result = service.findByCity(city, pageable);
@@ -166,7 +166,7 @@ public class PropertyServiceTest {
         when(repository.findBypricePerNightBetween(minPrice, maxPrice, pageable)).thenReturn(propertyPage);
         when(converter.toDto(any(Property.class))).thenAnswer(invocation -> {
             Property property = invocation.getArgument(0);
-            return new PropertyResponseDto(property.getId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
+            return new PropertyResponseDto(property.getPropertyId(), property.getTitle(), property.getAddress(), property.getDescription(), property.getCity(), property.getPricePerNight(), property.getImageUrl());
         });
 
         Page<PropertyResponseDto> result = service.findByPrice(minPrice, maxPrice, pageable);
@@ -195,7 +195,7 @@ public class PropertyServiceTest {
         PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
         Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
         Property updatedProperty = new Property(UUID.fromString(propertyId), propertyDto.address(), propertyDto.pricePerNight(), propertyDto.title(), propertyDto.description(), propertyDto.imageUrl(), propertyDto.city());
-        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(updatedProperty.getId(), updatedProperty.getTitle(), updatedProperty.getAddress(), updatedProperty.getDescription(), updatedProperty.getCity(), updatedProperty.getPricePerNight(), updatedProperty.getImageUrl());
+        PropertyResponseDto expectedResponseDto = new PropertyResponseDto(updatedProperty.getPropertyId(), updatedProperty.getTitle(), updatedProperty.getAddress(), updatedProperty.getDescription(), updatedProperty.getCity(), updatedProperty.getPricePerNight(), updatedProperty.getImageUrl());
 
         when(converter.toDto(updatedProperty)).thenReturn(expectedResponseDto);
         when(repository.findById(UUID.fromString(propertyId))).thenReturn(Optional.of(existingProperty));

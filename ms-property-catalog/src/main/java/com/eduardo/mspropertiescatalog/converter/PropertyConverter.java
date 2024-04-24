@@ -21,7 +21,7 @@ public class PropertyConverter {
 
     public PropertyResponseDto toDto(Property property) {
         return new PropertyResponseDto(
-                property.getId(),
+                property.getPropertyId(),
                 property.getTitle(),
                 property.getAddress(),
                 property.getDescription(),

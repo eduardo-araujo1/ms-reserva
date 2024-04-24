@@ -5,7 +5,7 @@ import com.eduardo.mspropertiescatalog.enums.ECity;
 import java.util.UUID;
 
 public record PropertyResponseDto(
-        UUID id,
+        UUID propertyId,
         String title,
         String address,
         String description,

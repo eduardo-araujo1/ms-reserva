@@ -44,8 +44,8 @@ public class PropertyService {
         return propertyPage.map(converter::toDto);
     }
 
-    public PropertyResponseDto findById(String id) {
-        Property property = repository.findById(UUID.fromString(id))
+    public PropertyResponseDto findById(String propertyId) {
+        Property property = repository.findById(UUID.fromString(propertyId))
                 .orElseThrow(() -> new PropertyNotFoundException("Propriedade não encontrada ou não existe."));
         return converter.toDto(property);
     }
@@ -68,8 +68,8 @@ public class PropertyService {
         return propertyPage.map(converter::toDto);
     }
 
-    public PropertyResponseDto update(String id, PropertyRequestDto dto) {
-        Property property = repository.findById(UUID.fromString(id))
+    public PropertyResponseDto update(String propertyId, PropertyRequestDto dto) {
+        Property property = repository.findById(UUID.fromString(propertyId))
                 .orElseThrow(() -> new PropertyNotFoundException("Propriedade não encontrada ou não existe."));
 
         property.setAddress(dto.address());
@@ -83,11 +83,11 @@ public class PropertyService {
         return converter.toDto(updatedProperty);
     }
 
-    public void deleteProperty(String id) {
-        if (!repository.existsById(UUID.fromString(id))) {
+    public void deleteProperty(String propertyId) {
+        if (!repository.existsById(UUID.fromString(propertyId))) {
             throw new PropertyNotFoundException("Propriedade não encontrada ou não existe");
         }
-        repository.deleteById(UUID.fromString(id));
+        repository.deleteById(UUID.fromString(propertyId));
     }
 
 }

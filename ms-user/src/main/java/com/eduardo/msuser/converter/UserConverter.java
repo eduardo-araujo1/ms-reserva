@@ -10,17 +10,17 @@ public class UserConverter {
 
     public User toModel(UserRequestDto dto){
         User user = new User();
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setName(dto.name());
+        user.setEmail(dto.email());
+        user.setPassword(dto.password());
         return user;
     }
 
     public UserResponseDto toDto(User user){
-        UserResponseDto dto = new UserResponseDto();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-        return dto;
+        return new UserResponseDto(
+                user.getUserId(),
+                user.getName(),
+                user.getEmail()
+        );
     }
 }

@@ -4,7 +4,7 @@ import com.eduardo.msuser.converter.UserConverter;
 import com.eduardo.msuser.dto.UserRequestDto;
 import com.eduardo.msuser.dto.UserResponseDto;
 import com.eduardo.msuser.exception.EmailAlreadyRegisteredException;
-import com.eduardo.msuser.exception.EmailNotFoundException;
+import com.eduardo.msuser.exception.UserNotFoundException;
 import com.eduardo.msuser.model.User;
 import com.eduardo.msuser.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -35,18 +35,18 @@ public class UserServiceTest {
     @Test
     public void createUser(){
         UserRequestDto dto = new UserRequestDto("Teste","teste@example.com","123456");
-        User userEntity = new User(UUID.randomUUID(), dto.getName(), dto.getEmail(), dto.getPassword());
+        User userEntity = new User(UUID.randomUUID(), dto.name(), dto.email(), dto.password());
 
         when(converter.toModel(any(UserRequestDto.class))).thenReturn(userEntity);
         when(repository.save(any(User.class))).thenReturn(userEntity);
-        when(converter.toDto(any(User.class))).thenReturn(new UserResponseDto(userEntity.getId(), userEntity.getName(), userEntity.getEmail()));
+        when(converter.toDto(any(User.class))).thenReturn(new UserResponseDto(userEntity.getUserId(), userEntity.getName(), userEntity.getEmail()));
 
         var createdUser = service.create(dto);
 
 
         assertNotNull(createdUser);
-        assertEquals(userEntity.getId(), createdUser.getId());
-        assertEquals(userEntity.getEmail(), createdUser.getEmail());
+        assertEquals(userEntity.getUserId(), createdUser.userId());
+        assertEquals(userEntity.getEmail(), createdUser.email());
         verify(repository, times(1)).save(any(User.class));
     }
 
@@ -55,7 +55,7 @@ public class UserServiceTest {
         UserRequestDto requestDto = new UserRequestDto("Teste", "teste@example.com", "123456");
         User existingUser = new User(UUID.randomUUID(), "Outro Usuário", "teste@example.com", "654321");
 
-        when(repository.findByEmail(requestDto.getEmail())).thenReturn(Optional.of(existingUser));
+        when(repository.findByEmail(requestDto.email())).thenReturn(Optional.of(existingUser));
 
         assertThrows(EmailAlreadyRegisteredException.class, () -> service.create(requestDto));
         verify(repository, never()).save(any(User.class));
@@ -67,13 +67,13 @@ public class UserServiceTest {
         User userEntity = new User(UUID.randomUUID(), "Teste", email, "123456");
 
         when(repository.findByEmail(email)).thenReturn(Optional.of(userEntity));
-        when(converter.toDto(userEntity)).thenReturn(new UserResponseDto(userEntity.getId(), userEntity.getName(), userEntity.getEmail()));
+        when(converter.toDto(userEntity)).thenReturn(new UserResponseDto(userEntity.getUserId(), userEntity.getName(), userEntity.getEmail()));
 
         var foundUser = service.findUserByEmail(email);
 
         assertNotNull(foundUser);
-        assertEquals(userEntity.getId(), foundUser.getId());
-        assertEquals(userEntity.getEmail(), foundUser.getEmail());
+        assertEquals(userEntity.getUserId(), foundUser.userId());
+        assertEquals(userEntity.getEmail(), foundUser.email());
     }
 
     @Test
@@ -82,6 +82,6 @@ public class UserServiceTest {
 
         when(repository.findByEmail(email)).thenReturn(Optional.empty());
 
-        assertThrows(EmailNotFoundException.class, () -> service.findUserByEmail(email));
+        assertThrows(UserNotFoundException.class, () -> service.findUserByEmail(email));
     }
 }

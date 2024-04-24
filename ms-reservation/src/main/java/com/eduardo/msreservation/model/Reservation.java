@@ -1,12 +1,12 @@
-package com.eduardo.mspropertiescatalog.model;
+package com.eduardo.msreservation.model;
 
-import com.eduardo.mspropertiescatalog.enums.ECity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -14,25 +14,23 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Property {
+public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "reservation_id")
+    private UUID id;
+
     @Column(name = "property_id")
     private UUID propertyId;
 
-    private String address;
+    @Column(name = "user_id")
+    private UUID userId;
 
-    private Double pricePerNight;
+    @Column(name = "check_in_date")
+    private LocalDate checkInDate;
 
-    private String title;
-
-    private String description;
-
-    private String imageUrl;
-
-    @Enumerated(EnumType.STRING)
-    private ECity city;
+    @Column(name = "check_out_date")
+    private LocalDate checkOutDate;
 
 }
-

@@ -20,8 +20,8 @@ public class ApiExceptionHandler {
 
     }
 
-    @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<ApiErrorMessage> emailNotFound(EmailNotFoundException exception){
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiErrorMessage> userNotFound(UserNotFoundException exception){
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)

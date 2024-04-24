@@ -7,13 +7,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserResponseDto {
-
-    private UUID id;
-    private String name;
-    private String email;
-}
+public record UserResponseDto(
+        UUID userId,
+        String name,
+        String email) {}
