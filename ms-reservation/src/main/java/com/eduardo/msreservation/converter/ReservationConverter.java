@@ -18,7 +18,7 @@ public class ReservationConverter {
         return reservation;
     }
 
-    public ReservationResponseDto toDto(Reservation reservation, UserInfoDto userDetails) {
+    public ReservationResponseDto toDto(Reservation reservation) {
         return new ReservationResponseDto(
                 reservation.getReservationId(),
                 reservation.getPropertyId(),
@@ -26,9 +26,7 @@ public class ReservationConverter {
                 reservation.getCheckInDate(),
                 reservation.getCheckOutDate(),
                 reservation.getTotalAmount(),
-                reservation.getStatus(),
-                userDetails.email(),
-                userDetails.name()
+                reservation.getStatus()
         );
     }
 }

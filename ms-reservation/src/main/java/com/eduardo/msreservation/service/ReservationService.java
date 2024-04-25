@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,16 +27,8 @@ public class ReservationService {
     private final ReservationConverter converter;
 
     public ReservationResponseDto createReservation(ReservationRequestDto dto) {
-        PropertyInfoDto propertyDetails = propertyClient.getPropertyDetails(dto.propertyId());
-        if (propertyDetails == null) {
-            throw new RuntimeException("Propriedade não encontrada: " + dto.propertyId());
-        }
-
-        UserInfoDto userDetails = userClient.getUserDetails(dto.userId());
-        if (userDetails == null) {
-            throw new RuntimeException("Usuário não encontrado: " + dto.userId());
-        }
-
+        PropertyInfoDto propertyDetails = getPropertyDetails(dto.propertyId());
+        UserInfoDto userDetails = getUserDetails(dto.userId());
         Double totalAmount = calculateTotalAmount(propertyDetails, dto.checkinDate(), dto.checkOutDate());
 
         Reservation reservation = converter.toModel(dto);
@@ -44,7 +37,29 @@ public class ReservationService {
 
         Reservation savedReservation = repository.save(reservation);
 
-        return converter.toDto(savedReservation, userDetails);
+        return converter.toDto(savedReservation);
+    }
+
+    public ReservationResponseDto findByreservationId(String reservationId){
+        Reservation findReservation = repository.findById(UUID.fromString(reservationId)).orElseThrow(
+                () -> new RuntimeException("Reserva não encontrada ou não existe."));
+        return converter.toDto(findReservation);
+    }
+
+    private PropertyInfoDto getPropertyDetails(String propertyId) {
+        PropertyInfoDto propertyDetails = propertyClient.getPropertyDetails(propertyId);
+        if (propertyDetails == null) {
+            throw new RuntimeException("Propriedade não encontrada: " + propertyId);
+        }
+        return propertyDetails;
+    }
+
+    private UserInfoDto getUserDetails(String userId) {
+        UserInfoDto userDetails = userClient.getUserDetails(userId);
+        if (userDetails == null) {
+            throw new RuntimeException("Usuário não encontrado: " + userId);
+        }
+        return userDetails;
     }
 
     private Double calculateTotalAmount(PropertyInfoDto propertyDetails, LocalDate checkInDate, LocalDate checkOutDate) {

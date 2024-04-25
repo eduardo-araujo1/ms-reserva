@@ -23,8 +23,9 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @GetMapping("/v1/reservations/{reservationId}")
-    public ResponseEntity<Void> getReservationStatus(@PathVariable UUID reservationId) {
-       return null; // Lógica para obter o status da reserva com o ID fornecido e retornar uma resposta adequada
+    @GetMapping
+    public ResponseEntity<ReservationResponseDto> getReservationStatus(@RequestParam("reservationId") String reservationId) {
+       var findReservation = service.findByreservationId(reservationId);
+       return ResponseEntity.ok().body(findReservation);
     }
 }
