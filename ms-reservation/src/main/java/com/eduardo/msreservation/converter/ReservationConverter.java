@@ -13,7 +13,7 @@ public class ReservationConverter {
         Reservation reservation = new Reservation();
         reservation.setPropertyId(dto.propertyId());
         reservation.setUserId(dto.userId());
-        reservation.setCheckInDate(dto.checkinDate());
+        reservation.setCheckInDate(dto.checkInDate());
         reservation.setCheckOutDate(dto.checkOutDate());
         return reservation;
     }
