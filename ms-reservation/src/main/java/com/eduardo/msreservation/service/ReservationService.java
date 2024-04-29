@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -38,7 +37,7 @@ public class ReservationService {
         reservation.setTotalAmount(totalAmount);
         reservation.setStatus(EStatus.WAITING_PAYMENT);
 
-        validateReservationPeriod(dto);
+        validateReservationPeriod(dto.checkInDate(), dto.checkOutDate());
         isDateAvailable(dto.checkInDate(), dto.checkOutDate(), dto.propertyId());
 
         Reservation savedReservation = repository.save(reservation);
@@ -46,24 +45,23 @@ public class ReservationService {
         return converter.toDto(savedReservation);
     }
 
-    private void validateReservationPeriod(ReservationRequestDto dto) {
-        if (!dto.isValidReservationPeriod()) {
-            throw new InvalidReservationPeriodException("A data de check-out deve ser posterior à data de check-in.");
-        }
-    }
-
-    private boolean isDateAvailable(LocalDate checkInDate, LocalDate checkOutDate, String propertyId) {
-        boolean dateAvailable = !repository.existsByCheckInDateAndCheckOutDateAndPropertyId(checkInDate, checkOutDate, propertyId);
-        if (!dateAvailable) {
-            throw new ReservationDateUnavailableException("Data de reserva indisponível. Já existe uma reserva para este período.");
-        }
-        return dateAvailable;
-    }
-
     public ReservationResponseDto findByreservationId(String reservationId){
         Reservation findReservation = repository.findById(UUID.fromString(reservationId)).orElseThrow(
                 () -> new ReservationNotFoundException("Reserva não encontrada ou não existe."));
         return converter.toDto(findReservation);
+    }
+
+    private void validateReservationPeriod(LocalDate checkInDate, LocalDate checkOutDate) {
+        if (checkOutDate.isEqual(checkInDate) || checkOutDate.isBefore(checkInDate)) {
+            throw new InvalidReservationPeriodException("A data de check-out deve ser posterior à data de check-in.");
+        }
+    }
+
+    private void isDateAvailable(LocalDate checkInDate, LocalDate checkOutDate, String propertyId) {
+        boolean dateAvailable = !repository.existsByCheckInDateAndCheckOutDateAndPropertyId(checkInDate, checkOutDate, propertyId);
+        if (!dateAvailable) {
+            throw new ReservationDateUnavailableException("Data de reserva indisponível. Já existe uma reserva para este período.");
+        }
     }
 
     private PropertyInfoDto getPropertyDetails(String propertyId) {
@@ -83,9 +81,9 @@ public class ReservationService {
     }
 
     private Double calculateTotalAmount(PropertyInfoDto propertyDetails, LocalDate checkInDate, LocalDate checkOutDate) {
-        Long numberOfNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        long numberOfNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
-        Double pricePerNight = Double.parseDouble(String.valueOf(propertyDetails.pricePerNight()));
+        double pricePerNight = propertyDetails.pricePerNight();
         double totalAmount = pricePerNight * numberOfNights;
 
         totalAmount = Math.round(totalAmount * 100.0) / 100.0;
