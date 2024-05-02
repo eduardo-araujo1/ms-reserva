@@ -12,9 +12,13 @@
         <module name="ms-reservation" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ms-payment" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ms-payment" options="-parameters" />
       <module name="ms-property-catalog" options="-parameters" />
       <module name="ms-reservation" options="-parameters" />
       <module name="ms-user" options="-parameters" />

@@ -19,7 +19,4 @@ public record ReservationRequestDto(
         @NotNull(message = "Campo checkOut é obrigatório.")
         LocalDate checkOutDate
 ) {
-    public boolean isValidReservationPeriod() {
-        return checkOutDate.isAfter(checkInDate) && !checkOutDate.isEqual(checkInDate);
-    }
 }

@@ -1,5 +1,6 @@
 package com.eduardo.msreservation.controller;
 
+import com.eduardo.msreservation.dto.PaymentDto;
 import com.eduardo.msreservation.dto.ReservationRequestDto;
 import com.eduardo.msreservation.dto.ReservationResponseDto;
 import com.eduardo.msreservation.service.ReservationService;
@@ -30,5 +31,10 @@ public class ReservationController {
        return ResponseEntity.ok().body(findReservation);
     }
 
-
+    @PostMapping("/payments")
+    public ResponseEntity<Void> processPayment(@RequestParam String reservationId, @RequestBody PaymentDto payment) {
+        service.processPayment(reservationId,payment);
+        return ResponseEntity.ok().build();
+    }
 }
+

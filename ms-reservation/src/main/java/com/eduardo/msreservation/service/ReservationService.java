@@ -5,6 +5,7 @@ import com.eduardo.msreservation.client.UserClient;
 import com.eduardo.msreservation.client.dto.PropertyInfoDto;
 import com.eduardo.msreservation.client.dto.UserInfoDto;
 import com.eduardo.msreservation.converter.ReservationConverter;
+import com.eduardo.msreservation.dto.PaymentDto;
 import com.eduardo.msreservation.dto.ReservationRequestDto;
 import com.eduardo.msreservation.dto.ReservationResponseDto;
 import com.eduardo.msreservation.enums.EStatus;
@@ -45,7 +46,7 @@ public class ReservationService {
         return converter.toDto(savedReservation);
     }
 
-    public ReservationResponseDto findByreservationId(String reservationId){
+    public ReservationResponseDto findByreservationId(String reservationId) {
         Reservation findReservation = repository.findById(UUID.fromString(reservationId)).orElseThrow(
                 () -> new ReservationNotFoundException("Reserva não encontrada ou não existe."));
         return converter.toDto(findReservation);
@@ -89,5 +90,19 @@ public class ReservationService {
         totalAmount = Math.round(totalAmount * 100.0) / 100.0;
 
         return totalAmount;
+    }
+
+    public void processPayment(String reservationId, PaymentDto payment) {
+        Reservation reservation = repository.findById(UUID.fromString(reservationId))
+                .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada: " + reservationId));
+        Double totalAmount = reservation.getTotalAmount();
+
+        if (!payment.amount().equals(totalAmount)) {
+            throw new RuntimeException("O valor do pagamento não corresponde ao valor total da reserva.");
+        }
+
+        reservation.setStatus(EStatus.APPROVED);
+
+        repository.save(reservation);
     }
 }

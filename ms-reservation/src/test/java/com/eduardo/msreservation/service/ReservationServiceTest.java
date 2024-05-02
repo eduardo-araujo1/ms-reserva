@@ -52,9 +52,9 @@ class ReservationServiceTest {
     public void testCreateReservation() {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().plusDays(2));
         PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
-        UserInfoDto userInfoDto = new UserInfoDto("userId","Teste", "teste@email.com");
-        Reservation entity = new Reservation(UUID.randomUUID(),dto.propertyId(),dto.userId(),dto.checkInDate(),dto.checkOutDate(),propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT);
-        ReservationResponseDto responseDto = new ReservationResponseDto(entity.getReservationId(),entity.getPropertyId(),entity.getUserId(),entity.getCheckInDate(),entity.getCheckOutDate(),entity.getTotalAmount(),entity.getStatus());
+        UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
+        Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT);
+        ReservationResponseDto responseDto = new ReservationResponseDto(entity.getReservationId(), entity.getPropertyId(), entity.getUserId(), entity.getCheckInDate(), entity.getCheckOutDate(), entity.getTotalAmount(), entity.getStatus());
 
         when(propertyClient.getPropertyDetails(anyString())).thenReturn(propertyInfoDto);
         when(userClient.getUserDetails(anyString())).thenReturn(userInfoDto);
@@ -73,8 +73,8 @@ class ReservationServiceTest {
     public void testCreateReservation_InvalidDates_ThrowsException() {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().minusDays(2));
         PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
-        UserInfoDto userInfoDto = new UserInfoDto("userId","Teste", "teste@email.com");
-        Reservation entity = new Reservation(UUID.randomUUID(),dto.propertyId(),dto.userId(),dto.checkInDate(),dto.checkOutDate(),propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT);
+        UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
+        Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT);
 
         when(propertyClient.getPropertyDetails(anyString())).thenReturn(propertyInfoDto);
         when(userClient.getUserDetails(anyString())).thenReturn(userInfoDto);
@@ -83,6 +83,8 @@ class ReservationServiceTest {
         assertThrows(InvalidReservationPeriodException.class, () -> {
             service.createReservation(dto);
         });
+
+        verify(repository, never()).save(any(Reservation.class));
     }
 
 
@@ -101,7 +103,7 @@ class ReservationServiceTest {
             service.createReservation(dto);
         });
 
-        verify(repository).existsByCheckInDateAndCheckOutDateAndPropertyId(any(LocalDate.class), any(LocalDate.class), anyString());
+        verify(repository, never()).save(any(Reservation.class));
     }
 
     @Test
@@ -111,6 +113,8 @@ class ReservationServiceTest {
         when(propertyClient.getPropertyDetails("propertyId")).thenReturn(null);
 
         assertThrows(PropertyException.class, () -> service.createReservation(dto));
+
+        verify(repository, never()).save(any(Reservation.class));
     }
 
     @Test
@@ -121,7 +125,7 @@ class ReservationServiceTest {
         when(propertyClient.getPropertyDetails("propertyId")).thenReturn(new PropertyInfoDto("propertyId", 250.0));
 
         assertThrows(UserException.class, () -> service.createReservation(dto));
+
+        verify(repository, never()).save(any(Reservation.class));
     }
-
-
 }
