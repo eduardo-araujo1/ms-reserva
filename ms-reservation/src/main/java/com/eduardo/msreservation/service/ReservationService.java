@@ -95,6 +95,7 @@ public class ReservationService {
     public void processPayment(String reservationId, PaymentDto payment) {
         Reservation reservation = repository.findById(UUID.fromString(reservationId))
                 .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada: " + reservationId));
+
         Double totalAmount = reservation.getTotalAmount();
 
         if (!payment.amount().equals(totalAmount)) {

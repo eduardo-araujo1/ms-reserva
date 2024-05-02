@@ -32,7 +32,7 @@ public class ReservationController {
     }
 
     @PostMapping("/payments")
-    public ResponseEntity<Void> processPayment(@RequestParam String reservationId, @RequestBody PaymentDto payment) {
+    public ResponseEntity<Void> processPayment(@RequestParam String reservationId, @Valid @RequestBody PaymentDto payment) {
         service.processPayment(reservationId,payment);
         return ResponseEntity.ok().build();
     }

@@ -16,6 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -83,5 +85,30 @@ public class UserServiceTest {
         when(repository.findByEmail(email)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> service.findUserByEmail(email));
+    }
+
+    @Test
+    public void testFindById() {
+        String userId = UUID.randomUUID().toString();
+        User existingUser = new User(UUID.fromString(userId),"Edu teste", "edu@teste.com","edu123");
+        UserResponseDto expectedResponseDto = new UserResponseDto(existingUser.getUserId(),existingUser.getName(),existingUser.getEmail());
+
+        when(repository.findById(UUID.fromString(userId))).thenReturn(Optional.of(existingUser));
+        when(converter.toDto(existingUser)).thenReturn(expectedResponseDto);
+
+        UserResponseDto foundUserDto = service.findById(userId);
+
+        assertThat(foundUserDto).isEqualTo(expectedResponseDto);
+    }
+
+    @Test
+    public void testFindById_UserNotFound(){
+        String nonExistentUserId = UUID.randomUUID().toString();
+
+        when(repository.findById(UUID.fromString(nonExistentUserId))).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.findById(nonExistentUserId)).isInstanceOf(UserNotFoundException.class)
+                    .hasMessage("Usuario não encontrado ou não existe.");
+
     }
 }

@@ -1,6 +1,5 @@
 package com.eduardo.msreservation.converter;
 
-import com.eduardo.msreservation.client.dto.UserInfoDto;
 import com.eduardo.msreservation.dto.ReservationRequestDto;
 import com.eduardo.msreservation.dto.ReservationResponseDto;
 import com.eduardo.msreservation.model.Reservation;
