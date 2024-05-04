@@ -43,4 +43,8 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
+    private String userEmail;
+
+    private String username;
+
 }

@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ms-property-catalog" />
+        <module name="notification-service" />
         <module name="ms-user" />
         <module name="ms-reservation" />
       </profile>
@@ -22,6 +23,7 @@
       <module name="ms-property-catalog" options="-parameters" />
       <module name="ms-reservation" options="-parameters" />
       <module name="ms-user" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
     </option>
   </component>
 </project>

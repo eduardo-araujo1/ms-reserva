@@ -12,6 +12,8 @@ public record ReservationResponseDto(
         LocalDate checkInDate,
         LocalDate checkOutDate,
         Double totalAmount,
-        EStatus status
+        EStatus status,
+        String userEmail,
+        String username
         ) {
 }

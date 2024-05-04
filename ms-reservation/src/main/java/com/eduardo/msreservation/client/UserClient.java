@@ -11,5 +11,4 @@ public interface UserClient {
     @GetMapping(value = "v1/users", params = "userId")
     UserInfoDto getUserDetails(@RequestParam("userId") String userId);
 
-
 }

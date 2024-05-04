@@ -53,8 +53,8 @@ class ReservationServiceTest {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().plusDays(2));
         PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
         UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
-        Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT);
-        ReservationResponseDto responseDto = new ReservationResponseDto(entity.getReservationId(), entity.getPropertyId(), entity.getUserId(), entity.getCheckInDate(), entity.getCheckOutDate(), entity.getTotalAmount(), entity.getStatus());
+        Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT, userInfoDto.email(),userInfoDto.name());
+        ReservationResponseDto responseDto = new ReservationResponseDto(entity.getReservationId(), entity.getPropertyId(), entity.getUserId(), entity.getCheckInDate(), entity.getCheckOutDate(), entity.getTotalAmount(), entity.getStatus(), entity.getUserEmail(),entity.getUsername());
 
         when(propertyClient.getPropertyDetails(anyString())).thenReturn(propertyInfoDto);
         when(userClient.getUserDetails(anyString())).thenReturn(userInfoDto);
@@ -74,7 +74,7 @@ class ReservationServiceTest {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().minusDays(2));
         PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
         UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
-        Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT);
+        Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT, userInfoDto.email(),userInfoDto.name());
 
         when(propertyClient.getPropertyDetails(anyString())).thenReturn(propertyInfoDto);
         when(userClient.getUserDetails(anyString())).thenReturn(userInfoDto);
@@ -132,8 +132,8 @@ class ReservationServiceTest {
     @Test
     public void testFindReservationById(){
         String reservationId = UUID.randomUUID().toString();
-        Reservation existingReservation = new Reservation(UUID.fromString(reservationId),"propertyId","userId", LocalDate.now(), LocalDate.now().plusDays(2), 500.00, EStatus.WAITING_PAYMENT);
-        ReservationResponseDto responseDto = new ReservationResponseDto(existingReservation.getReservationId(),existingReservation.getPropertyId(),existingReservation.getUserId(),existingReservation.getCheckInDate(),existingReservation.getCheckOutDate(),existingReservation.getTotalAmount(),existingReservation.getStatus());
+        Reservation existingReservation = new Reservation(UUID.fromString(reservationId),"propertyId","userId", LocalDate.now(), LocalDate.now().plusDays(2), 500.00, EStatus.WAITING_PAYMENT,"user@test.com","test123");
+        ReservationResponseDto responseDto = new ReservationResponseDto(existingReservation.getReservationId(),existingReservation.getPropertyId(),existingReservation.getUserId(),existingReservation.getCheckInDate(),existingReservation.getCheckOutDate(),existingReservation.getTotalAmount(),existingReservation.getStatus(),existingReservation.getUserEmail(),existingReservation.getUsername());
 
         when(repository.findById(UUID.fromString(reservationId))).thenReturn(Optional.of(existingReservation));
         when(converter.toDto(existingReservation)).thenReturn(responseDto);
@@ -161,13 +161,12 @@ class ReservationServiceTest {
         PaymentDto payment = new PaymentDto(totalAmount, "1234567890123456", "Edu teste", "12/25", "123");
 
         Reservation reservation = new Reservation(UUID.fromString(reservationId), "propertyId", "userId",
-                LocalDate.now(), LocalDate.now().plusDays(2), totalAmount, EStatus.WAITING_PAYMENT);
+                LocalDate.now(), LocalDate.now().plusDays(2), totalAmount, EStatus.WAITING_PAYMENT,"user@test.com","test123");
 
         when(repository.findById(UUID.fromString(reservationId))).thenReturn(Optional.of(reservation));
 
         service.processPayment(reservationId, payment);
 
-        // Assert
         verify(repository).findById(UUID.fromString(reservationId));
         assertEquals(EStatus.APPROVED, reservation.getStatus());
         verify(repository).save(reservation);
@@ -190,7 +189,7 @@ class ReservationServiceTest {
         PaymentDto payment = new PaymentDto(50.00, "1234567890123456", "Edu teste", "12/25", "123");
 
         Reservation reservation = new Reservation(UUID.fromString(reservationId), "propertyId", "userId",
-                LocalDate.now(), LocalDate.now().plusDays(2), totalAmount, EStatus.WAITING_PAYMENT);
+                LocalDate.now(), LocalDate.now().plusDays(2), totalAmount, EStatus.WAITING_PAYMENT,"user@test.com","test123");
 
         when(repository.findById(UUID.fromString(reservationId))).thenReturn(Optional.of(reservation));
 

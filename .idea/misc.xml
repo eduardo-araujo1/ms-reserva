@@ -8,6 +8,7 @@
         <option value="$PROJECT_DIR$/ms-property-catalog/pom.xml" />
         <option value="$PROJECT_DIR$/ms-reservation/pom.xml" />
         <option value="$PROJECT_DIR$/ms-payment/pom.xml" />
+        <option value="$PROJECT_DIR$/notification-service/pom.xml" />
       </list>
     </option>
   </component>

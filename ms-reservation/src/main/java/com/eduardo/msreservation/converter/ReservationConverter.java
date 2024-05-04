@@ -25,7 +25,9 @@ public class ReservationConverter {
                 reservation.getCheckInDate(),
                 reservation.getCheckOutDate(),
                 reservation.getTotalAmount(),
-                reservation.getStatus()
+                reservation.getStatus(),
+                reservation.getUserEmail(),
+                reservation.getUsername()
         );
     }
 }

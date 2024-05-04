@@ -11,6 +11,7 @@ import com.eduardo.msreservation.dto.ReservationResponseDto;
 import com.eduardo.msreservation.enums.EStatus;
 import com.eduardo.msreservation.exception.*;
 import com.eduardo.msreservation.model.Reservation;
+import com.eduardo.msreservation.producer.ReservationProducer;
 import com.eduardo.msreservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class ReservationService {
     private final UserClient userClient;
     private final PropertyClient propertyClient;
     private final ReservationConverter converter;
+    private final ReservationProducer reservationProducer;
 
     public ReservationResponseDto createReservation(ReservationRequestDto dto) {
         PropertyInfoDto propertyDetails = getPropertyDetails(dto.propertyId());
@@ -35,8 +37,11 @@ public class ReservationService {
         Double totalAmount = calculateTotalAmount(propertyDetails, dto.checkInDate(), dto.checkOutDate());
 
         Reservation reservation = converter.toModel(dto);
+
         reservation.setTotalAmount(totalAmount);
         reservation.setStatus(EStatus.WAITING_PAYMENT);
+        reservation.setUserEmail(userDetails.email());
+        reservation.setUsername(userDetails.name());
 
         validateReservationPeriod(dto.checkInDate(), dto.checkOutDate());
         isDateAvailable(dto.checkInDate(), dto.checkOutDate(), dto.propertyId());
@@ -103,6 +108,7 @@ public class ReservationService {
         }
 
         reservation.setStatus(EStatus.APPROVED);
+        reservationProducer.publishMessageEmail(reservation);
 
         repository.save(reservation);
     }
