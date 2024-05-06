@@ -40,7 +40,6 @@ public class ReservationProducer {
         emailDto.setText(message);
 
         rabbitTemplate.convertAndSend(exchange,routingKey ,emailDto);
-
     }
 
 }
