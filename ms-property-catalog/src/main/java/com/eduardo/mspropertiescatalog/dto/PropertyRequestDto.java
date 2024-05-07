@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
+
 public record PropertyRequestDto(
         @NotBlank(message = "O titulo não pode estar em branco.")
         String title,
@@ -16,7 +18,7 @@ public record PropertyRequestDto(
         ECity city,
         @NotNull(message = "O preço por noite não pode estar em branco.")
         @Min(value = 1, message = "O preço por noite não pode ser menor que R$1.00.")
-        Double pricePerNight,
+        BigDecimal pricePerNight,
         String imageUrl
 ) {
 }

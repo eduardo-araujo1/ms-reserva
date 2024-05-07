@@ -20,15 +20,14 @@ public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    final JavaMailSender emailSender;
+    @Value(value = "${spring.mail.username}")
+    private String emailFrom;
+
+    private final JavaMailSender emailSender;
 
     public EmailService(JavaMailSender emailSender) {
         this.emailSender = emailSender;
     }
-
-    @Value(value = "${spring.mail.username}")
-    private String emailFrom;
-
 
     public void sendEmail(EmailModel emailModel) {
         try {

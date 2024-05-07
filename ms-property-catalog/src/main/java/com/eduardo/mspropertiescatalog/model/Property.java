@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -23,7 +24,7 @@ public class Property {
 
     private String address;
 
-    private Double pricePerNight;
+    private BigDecimal pricePerNight;
 
     private String title;
 

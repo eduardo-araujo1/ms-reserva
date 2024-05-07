@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 @RestController
@@ -53,8 +54,8 @@ public class PropertyController {
     }
 
     @GetMapping("/price")
-    public ResponseEntity<Page<PropertyResponseDto>> filterPropertiesByPrice(@RequestParam Double minPrice,
-                                                                             @RequestParam Double maxPrice,
+    public ResponseEntity<Page<PropertyResponseDto>> filterPropertiesByPrice(@RequestParam BigDecimal minPrice,
+                                                                             @RequestParam BigDecimal maxPrice,
                                                                              @PageableDefault(page = 0, size = 10) Pageable pageable) {
         Page<PropertyResponseDto> responseDtos = service.findByPrice(minPrice, maxPrice, pageable);
         return ResponseEntity.ok().body(responseDtos);

@@ -12,6 +12,8 @@ public class UserConverter {
         User user = new User();
         user.setName(dto.name());
         user.setEmail(dto.email());
+        user.setCpf(dto.cpf());
+        user.setPhoneNumber(dto.phoneNumber());
         user.setPassword(dto.password());
         return user;
     }
@@ -20,7 +22,9 @@ public class UserConverter {
         return new UserResponseDto(
                 user.getUserId(),
                 user.getName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getCpf(),
+                user.getPhoneNumber()
         );
     }
 }

@@ -1,7 +1,9 @@
 package com.eduardo.msreservation.client.dto;
 
+import java.math.BigDecimal;
+
 public record PropertyInfoDto(
         String propertyId,
-        Double pricePerNight
+        BigDecimal pricePerNight
 ) {
 }

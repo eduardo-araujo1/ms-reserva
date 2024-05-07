@@ -11,14 +11,15 @@ import com.eduardo.msreservation.dto.ReservationResponseDto;
 import com.eduardo.msreservation.enums.EStatus;
 import com.eduardo.msreservation.exception.*;
 import com.eduardo.msreservation.model.Reservation;
+import com.eduardo.msreservation.producer.ReservationProducer;
 import com.eduardo.msreservation.repository.ReservationRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,13 +46,16 @@ class ReservationServiceTest {
     @Mock
     private ReservationConverter converter;
 
+    @Mock
+    private ReservationProducer producer;
+
     @InjectMocks
     private ReservationService service;
 
     @Test
     public void testCreateReservation() {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().plusDays(2));
-        PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
+        PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", BigDecimal.valueOf(250.0)); // Alterado para BigDecimal
         UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
         Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT, userInfoDto.email(),userInfoDto.name());
         ReservationResponseDto responseDto = new ReservationResponseDto(entity.getReservationId(), entity.getPropertyId(), entity.getUserId(), entity.getCheckInDate(), entity.getCheckOutDate(), entity.getTotalAmount(), entity.getStatus(), entity.getUserEmail(),entity.getUsername());
@@ -72,7 +76,7 @@ class ReservationServiceTest {
     @Test
     public void testCreateReservation_InvalidDates_ThrowsException() {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().minusDays(2));
-        PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
+        PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", BigDecimal.valueOf(250.0));
         UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
         Reservation entity = new Reservation(UUID.randomUUID(), dto.propertyId(), dto.userId(), dto.checkInDate(), dto.checkOutDate(), propertyInfoDto.pricePerNight(), EStatus.WAITING_PAYMENT, userInfoDto.email(),userInfoDto.name());
 
@@ -91,7 +95,7 @@ class ReservationServiceTest {
     @Test
     public void testCreateReservation_DateUnavailable_ThrowsException() {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().plusDays(2));
-        PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", 250.0);
+        PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", BigDecimal.valueOf(250.00));
         UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
 
         when(propertyClient.getPropertyDetails(anyString())).thenReturn(propertyInfoDto);
@@ -122,7 +126,7 @@ class ReservationServiceTest {
         ReservationRequestDto dto = new ReservationRequestDto("propertyId", "userId", LocalDate.now(), LocalDate.now().plusDays(2));
 
         when(userClient.getUserDetails("userId")).thenReturn(null);
-        when(propertyClient.getPropertyDetails("propertyId")).thenReturn(new PropertyInfoDto("propertyId", 250.0));
+        when(propertyClient.getPropertyDetails("propertyId")).thenReturn(new PropertyInfoDto("propertyId", BigDecimal.valueOf(250.0))); // Alterado para BigDecimal
 
         assertThrows(UserException.class, () -> service.createReservation(dto));
 
@@ -132,7 +136,7 @@ class ReservationServiceTest {
     @Test
     public void testFindReservationById(){
         String reservationId = UUID.randomUUID().toString();
-        Reservation existingReservation = new Reservation(UUID.fromString(reservationId),"propertyId","userId", LocalDate.now(), LocalDate.now().plusDays(2), 500.00, EStatus.WAITING_PAYMENT,"user@test.com","test123");
+        Reservation existingReservation = new Reservation(UUID.fromString(reservationId),"propertyId","userId", LocalDate.now(), LocalDate.now().plusDays(2), BigDecimal.valueOf(500.00), EStatus.WAITING_PAYMENT,"user@test.com","test123");
         ReservationResponseDto responseDto = new ReservationResponseDto(existingReservation.getReservationId(),existingReservation.getPropertyId(),existingReservation.getUserId(),existingReservation.getCheckInDate(),existingReservation.getCheckOutDate(),existingReservation.getTotalAmount(),existingReservation.getStatus(),existingReservation.getUserEmail(),existingReservation.getUsername());
 
         when(repository.findById(UUID.fromString(reservationId))).thenReturn(Optional.of(existingReservation));
@@ -157,7 +161,7 @@ class ReservationServiceTest {
     @Test
     void testProcessPayment_ReservationFoundAndPaymentValid_StatusUpdated() {
         String reservationId = UUID.randomUUID().toString();
-        Double totalAmount = 100.0;
+        BigDecimal totalAmount = BigDecimal.valueOf(100.0);
         PaymentDto payment = new PaymentDto(totalAmount, "1234567890123456", "Edu teste", "12/25", "123");
 
         Reservation reservation = new Reservation(UUID.fromString(reservationId), "propertyId", "userId",
@@ -167,15 +171,17 @@ class ReservationServiceTest {
 
         service.processPayment(reservationId, payment);
 
-        verify(repository).findById(UUID.fromString(reservationId));
         assertEquals(EStatus.APPROVED, reservation.getStatus());
+        verify(repository).findById(UUID.fromString(reservationId));
         verify(repository).save(reservation);
+        verify(producer).publishMessageEmail(reservation);
     }
 
     @Test
     void testProcessPayment_ReservationNotFound_ExceptionThrown() {
         String reservationId = UUID.randomUUID().toString();
-        PaymentDto payment = new PaymentDto(100.0, "1234567890123456", "Edu teste", "12/25", "123");
+        BigDecimal totalAmount = BigDecimal.valueOf(100.00);
+        PaymentDto payment = new PaymentDto(totalAmount, "1234567890123456", "Edu teste", "12/25", "123");
 
         when(repository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
@@ -185,8 +191,8 @@ class ReservationServiceTest {
     @Test
     void testProcessPayment_InvalidPaymentAmount_ExceptionThrown() {
         String reservationId =UUID.randomUUID().toString();
-        Double totalAmount = 100.0;
-        PaymentDto payment = new PaymentDto(50.00, "1234567890123456", "Edu teste", "12/25", "123");
+        BigDecimal totalAmount = BigDecimal.valueOf(100.0); // Alterado para BigDecimal
+        PaymentDto payment = new PaymentDto(BigDecimal.valueOf(50.00), "1234567890123456", "Edu teste", "12/25", "123");
 
         Reservation reservation = new Reservation(UUID.fromString(reservationId), "propertyId", "userId",
                 LocalDate.now(), LocalDate.now().plusDays(2), totalAmount, EStatus.WAITING_PAYMENT,"user@test.com","test123");

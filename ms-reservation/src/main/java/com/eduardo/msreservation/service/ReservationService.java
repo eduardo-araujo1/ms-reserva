@@ -16,6 +16,8 @@ import com.eduardo.msreservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -34,7 +36,7 @@ public class ReservationService {
         PropertyInfoDto propertyDetails = getPropertyDetails(dto.propertyId());
         UserInfoDto userDetails = getUserDetails(dto.userId());
 
-        Double totalAmount = calculateTotalAmount(propertyDetails, dto.checkInDate(), dto.checkOutDate());
+        BigDecimal totalAmount = calculateTotalAmount(propertyDetails, dto.checkInDate(), dto.checkOutDate());
 
         Reservation reservation = converter.toModel(dto);
 
@@ -86,13 +88,13 @@ public class ReservationService {
         return userDetails;
     }
 
-    private Double calculateTotalAmount(PropertyInfoDto propertyDetails, LocalDate checkInDate, LocalDate checkOutDate) {
+    private BigDecimal calculateTotalAmount(PropertyInfoDto propertyDetails, LocalDate checkInDate, LocalDate checkOutDate) {
         long numberOfNights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
 
-        double pricePerNight = propertyDetails.pricePerNight();
-        double totalAmount = pricePerNight * numberOfNights;
+        BigDecimal pricePerNight = propertyDetails.pricePerNight();
+        BigDecimal totalAmount = pricePerNight.multiply(BigDecimal.valueOf(numberOfNights));
 
-        totalAmount = Math.round(totalAmount * 100.0) / 100.0;
+        totalAmount = totalAmount.setScale(2, RoundingMode.DOWN);
 
         return totalAmount;
     }
@@ -101,15 +103,15 @@ public class ReservationService {
         Reservation reservation = repository.findById(UUID.fromString(reservationId))
                 .orElseThrow(() -> new ReservationNotFoundException("Reserva não encontrada: " + reservationId));
 
-        Double totalAmount = reservation.getTotalAmount();
+        BigDecimal totalAmount = reservation.getTotalAmount();
 
         if (!payment.amount().equals(totalAmount)) {
             throw new RuntimeException("O valor do pagamento não corresponde ao valor total da reserva.");
         }
 
         reservation.setStatus(EStatus.APPROVED);
-        reservationProducer.publishMessageEmail(reservation);
 
         repository.save(reservation);
+        reservationProducer.publishMessageEmail(reservation);
     }
 }

@@ -2,6 +2,7 @@ package com.eduardo.mspropertiescatalog.dto;
 
 import com.eduardo.mspropertiescatalog.enums.ECity;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public record PropertyResponseDto(
@@ -10,7 +11,7 @@ public record PropertyResponseDto(
         String address,
         String description,
         ECity city,
-        Double pricePerNight,
+        BigDecimal pricePerNight,
         String imageUrl
 ) {
 }

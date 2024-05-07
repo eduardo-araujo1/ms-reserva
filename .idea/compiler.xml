@@ -8,7 +8,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ms-property-catalog" />
+        <module name="eureka-server" />
         <module name="notification-service" />
+        <module name="gateway-service" />
         <module name="ms-user" />
         <module name="ms-reservation" />
       </profile>
@@ -19,6 +21,8 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="eureka-server" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
       <module name="ms-payment" options="-parameters" />
       <module name="ms-property-catalog" options="-parameters" />
       <module name="ms-reservation" options="-parameters" />

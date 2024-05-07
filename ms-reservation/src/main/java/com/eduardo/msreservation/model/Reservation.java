@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -38,11 +39,12 @@ public class Reservation {
     private LocalDate checkOutDate;
 
     @Column(name = "total_amount")
-    private Double totalAmount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     private EStatus status;
 
+    @Column(name = "user_email")
     private String userEmail;
 
     private String username;

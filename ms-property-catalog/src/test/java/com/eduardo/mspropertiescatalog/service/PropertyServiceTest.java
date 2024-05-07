@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class PropertyServiceTest {
 
     @Test
     public void testInsertProperty() {
-        PropertyRequestDto dto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
+        PropertyRequestDto dto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, BigDecimal.valueOf(100.50), "http://teste.com");
         Property propertyEntity = new Property(UUID.randomUUID(), dto.address(), dto.pricePerNight(), dto.title(), dto.description(), dto.imageUrl(), dto.city());
 
         when(converter.toModel(any(PropertyRequestDto.class))).thenReturn(propertyEntity);
@@ -66,7 +67,7 @@ public class PropertyServiceTest {
     @Test
     public void testInsertProperty_AddressAlreadyRegistered() {
         String NAME = "teste123";
-        PropertyRequestDto dto = new PropertyRequestDto("teste", NAME, "teste", UBATUBA, 100.50, "http://teste.com");
+        PropertyRequestDto dto = new PropertyRequestDto("teste", NAME, "teste", UBATUBA, BigDecimal.valueOf(100.50), "http://teste.com"); // Alterado para BigDecimal
 
         when(repository.findByAddress(NAME)).thenThrow(AddressAlreadyRegisteredException.class);
 
@@ -80,8 +81,8 @@ public class PropertyServiceTest {
     @Test
     public void testFindAll() {
         List<Property> properties = new ArrayList<>();
-        properties.add(new Property(UUID.randomUUID(), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA));
-        properties.add(new Property(UUID.randomUUID(), "teste2", 200.00, "title2", "description2", "https://example.com/image2.jpg", BERTIOGA));
+        properties.add(new Property(UUID.randomUUID(), "teste1", BigDecimal.valueOf(100.00), "title", "description1", "https://example.com/image.jpg", UBATUBA));
+        properties.add(new Property(UUID.randomUUID(), "teste2", BigDecimal.valueOf(200.00), "title2", "description2", "https://example.com/image2.jpg", BERTIOGA));
         Page<Property> propertiesPage = new PageImpl<>(properties);
 
         when(repository.findAll(any(PageRequest.class))).thenReturn(propertiesPage);
@@ -99,7 +100,7 @@ public class PropertyServiceTest {
     @Test
     public void testFindById() {
         String propertyId = UUID.randomUUID().toString();
-        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
+        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", BigDecimal.valueOf(100.00), "title", "description1", "https://example.com/image.jpg", UBATUBA);
         PropertyResponseDto expectedResponseDto = new PropertyResponseDto(existingProperty.getPropertyId(), existingProperty.getTitle(), existingProperty.getAddress(), existingProperty.getDescription(), existingProperty.getCity(), existingProperty.getPricePerNight(), existingProperty.getImageUrl());
 
         when(repository.findById(UUID.fromString(propertyId))).thenReturn(Optional.of(existingProperty));
@@ -109,6 +110,8 @@ public class PropertyServiceTest {
 
         assertThat(foundPropertyDto).isEqualTo(expectedResponseDto);
     }
+
+
 
     @Test
     public void testFindById_PropertyNotFound() {
@@ -126,7 +129,7 @@ public class PropertyServiceTest {
         ECity city = UBATUBA;
         Pageable pageable = PageRequest.of(0, 10);
         List<Property> properties = new ArrayList<>();
-        properties.add(new Property(UUID.randomUUID(), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA));
+        properties.add(new Property(UUID.randomUUID(), "teste1", BigDecimal.valueOf(100.00), "title", "description1", "https://example.com/image.jpg", UBATUBA));
         Page<Property> propertyPage = new PageImpl<>(properties);
 
         when(repository.findByCity(city, pageable)).thenReturn(propertyPage);
@@ -156,11 +159,11 @@ public class PropertyServiceTest {
 
     @Test
     public void testFindByPrice() {
-        Double minPrice = 100.0;
-        Double maxPrice = 200.0;
+        BigDecimal minPrice = BigDecimal.valueOf(100.0);
+        BigDecimal maxPrice = BigDecimal.valueOf(200.0);
         Pageable pageable = PageRequest.of(0, 10);
         List<Property> properties = new ArrayList<>();
-        properties.add(new Property(UUID.randomUUID(), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA));
+        properties.add(new Property(UUID.randomUUID(), "teste1", BigDecimal.valueOf(100.00), "title", "description1", "https://example.com/image.jpg", UBATUBA));
         Page<Property> propertyPage = new PageImpl<>(properties);
 
         when(repository.findBypricePerNightBetween(minPrice, maxPrice, pageable)).thenReturn(propertyPage);
@@ -178,8 +181,8 @@ public class PropertyServiceTest {
 
     @Test
     public void testFindByPrice_NoPropertiesFound() {
-        Double minPrice = 100.0;
-        Double maxPrice = 200.0;
+        BigDecimal minPrice = BigDecimal.valueOf(100.0);
+        BigDecimal maxPrice = BigDecimal.valueOf(200.0);
         Pageable pageable = PageRequest.of(0, 10);
 
         when(repository.findBypricePerNightBetween(minPrice, maxPrice, pageable)).thenReturn(Page.empty());
@@ -192,8 +195,8 @@ public class PropertyServiceTest {
     @Test
     public void testUpdateProperty() {
         String propertyId = UUID.randomUUID().toString();
-        PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
-        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", 100.00, "title", "description1", "https://example.com/image.jpg", UBATUBA);
+        PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, BigDecimal.valueOf(100.50), "http://teste.com");
+        Property existingProperty = new Property(UUID.fromString(propertyId), "teste1", BigDecimal.valueOf(100.00), "title", "description1", "https://example.com/image.jpg", UBATUBA);
         Property updatedProperty = new Property(UUID.fromString(propertyId), propertyDto.address(), propertyDto.pricePerNight(), propertyDto.title(), propertyDto.description(), propertyDto.imageUrl(), propertyDto.city());
         PropertyResponseDto expectedResponseDto = new PropertyResponseDto(updatedProperty.getPropertyId(), updatedProperty.getTitle(), updatedProperty.getAddress(), updatedProperty.getDescription(), updatedProperty.getCity(), updatedProperty.getPricePerNight(), updatedProperty.getImageUrl());
 
@@ -208,10 +211,11 @@ public class PropertyServiceTest {
         assertThat(updatedPropertyDto).isEqualTo(expectedResponseDto);
     }
 
+
     @Test
     public void testUpdateProperty_PropertyNotFound() {
         String nonExistingPropertyId = UUID.randomUUID().toString();
-        PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, 100.50, "http://teste.com");
+        PropertyRequestDto propertyDto = new PropertyRequestDto("teste", "teste123", "teste", UBATUBA, BigDecimal.valueOf(100.50), "http://teste.com");
 
         when(repository.findById(UUID.fromString(nonExistingPropertyId))).thenReturn(Optional.empty());
 

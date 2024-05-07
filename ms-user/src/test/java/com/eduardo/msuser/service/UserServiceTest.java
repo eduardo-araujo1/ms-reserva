@@ -36,12 +36,12 @@ public class UserServiceTest {
 
     @Test
     public void createUser(){
-        UserRequestDto dto = new UserRequestDto("Teste","teste@example.com","123456");
-        User userEntity = new User(UUID.randomUUID(), dto.name(), dto.email(), dto.password());
+        UserRequestDto dto = new UserRequestDto("Teste","teste@example.com","12345678910","11999292222","123456");
+        User userEntity = new User(UUID.randomUUID(), dto.name(), dto.cpf() ,dto.phoneNumber(), dto.email(), dto.password());
 
         when(converter.toModel(any(UserRequestDto.class))).thenReturn(userEntity);
         when(repository.save(any(User.class))).thenReturn(userEntity);
-        when(converter.toDto(any(User.class))).thenReturn(new UserResponseDto(userEntity.getUserId(), userEntity.getName(), userEntity.getEmail()));
+        when(converter.toDto(any(User.class))).thenReturn(new UserResponseDto(userEntity.getUserId(), userEntity.getName(),userEntity.getEmail(), userEntity.getCpf(), userEntity.getPhoneNumber()));
 
         var createdUser = service.create(dto);
 
@@ -54,22 +54,22 @@ public class UserServiceTest {
 
     @Test
     public void userCreate_AlreadyRegistered(){
-        UserRequestDto requestDto = new UserRequestDto("Teste", "teste@example.com", "123456");
-        User existingUser = new User(UUID.randomUUID(), "Outro Usuário", "teste@example.com", "654321");
+        UserRequestDto dto = new UserRequestDto("Teste","teste@example.com","12345678910","11999292222","123456");
+        User existingUser = new User(UUID.randomUUID(), "Outro Usuário","12345678910","11965568998","teste@example.com", "654321");
 
-        when(repository.findByEmail(requestDto.email())).thenReturn(Optional.of(existingUser));
+        when(repository.findByEmail(dto.email())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(EmailAlreadyRegisteredException.class, () -> service.create(requestDto));
+        assertThrows(EmailAlreadyRegisteredException.class, () -> service.create(dto));
         verify(repository, never()).save(any(User.class));
     }
 
     @Test
     public void findUserByEmail(){
         String email = "teste@example.com";
-        User userEntity = new User(UUID.randomUUID(), "Teste", email, "123456");
+        User userEntity = new User(UUID.randomUUID(), "Teste","12345678910","11966665555", email, "123456");
 
         when(repository.findByEmail(email)).thenReturn(Optional.of(userEntity));
-        when(converter.toDto(userEntity)).thenReturn(new UserResponseDto(userEntity.getUserId(), userEntity.getName(), userEntity.getEmail()));
+        when(converter.toDto(userEntity)).thenReturn(new UserResponseDto(userEntity.getUserId(), userEntity.getName(),userEntity.getEmail(), userEntity.getCpf(), userEntity.getPhoneNumber()));
 
         var foundUser = service.findUserByEmail(email);
 
@@ -90,8 +90,8 @@ public class UserServiceTest {
     @Test
     public void testFindById() {
         String userId = UUID.randomUUID().toString();
-        User existingUser = new User(UUID.fromString(userId),"Edu teste", "edu@teste.com","edu123");
-        UserResponseDto expectedResponseDto = new UserResponseDto(existingUser.getUserId(),existingUser.getName(),existingUser.getEmail());
+        User existingUser = new User(UUID.fromString(userId),"Edu teste","12345678910","11933332222","edu@teste.com","edu123");
+        UserResponseDto expectedResponseDto = new UserResponseDto(existingUser.getUserId(), existingUser.getName(),existingUser.getEmail(), existingUser.getCpf(), existingUser.getPhoneNumber());
 
         when(repository.findById(UUID.fromString(userId))).thenReturn(Optional.of(existingUser));
         when(converter.toDto(existingUser)).thenReturn(expectedResponseDto);

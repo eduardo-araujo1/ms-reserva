@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,7 +60,7 @@ public class PropertyService {
         return propertyPage.map(converter::toDto);
     }
 
-    public Page<PropertyResponseDto> findByPrice(Double minPrice, Double maxPrice, Pageable pageable) {
+    public Page<PropertyResponseDto> findByPrice(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         Page<Property> propertyPage = repository.findBypricePerNightBetween(minPrice, maxPrice, pageable);
 
         if (propertyPage.isEmpty()) {

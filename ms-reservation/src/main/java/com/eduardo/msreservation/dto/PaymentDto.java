@@ -4,9 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import java.math.BigDecimal;
+
 public record PaymentDto(
         @NotNull(message = "O valor do pagamento é obrigatório.")
-        Double amount,
+        BigDecimal amount,
 
         @NotBlank(message = "O número do cartão é obrigatório.")
         @Pattern(regexp = "\\d{16}", message = "O número do cartão deve ter 16 dígitos.")
