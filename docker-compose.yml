@@ -5,6 +5,8 @@ services:
     image: mysql:8.3.0
     container_name: user-db
     restart: always
+    networks:
+      - api-connection
     ports:
       - "3306:3306"
     environment:
@@ -12,13 +14,13 @@ services:
       - MYSQL_PASSWORD=ThePassword
       - MYSQL_DATABASE=user-db
       - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - "./conf.d:/etc/mysql/conf.d:ro"
 
   properties-db:
     image: mysql:8.3.0
     container_name: properties-db
     restart: always
+    networks:
+      - api-connection
     ports:
       - "3307:3306"
     environment:
@@ -26,13 +28,13 @@ services:
       - MYSQL_PASSWORD=ThePassword
       - MYSQL_DATABASE=properties-db
       - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - "./conf.d:/etc/mysql/conf.d:ro"
 
   reservation-db:
     image: mysql:8.3.0
     container_name: reservation-db
     restart: always
+    networks:
+      - api-connection
     ports:
       - "3308:3306"
     environment:
@@ -40,15 +42,104 @@ services:
       - MYSQL_PASSWORD=ThePassword
       - MYSQL_DATABASE=reservation-db
       - MYSQL_ROOT_PASSWORD=root
-    volumes:
-      - "./conf.d:/etc/mysql/conf.d:ro"
 
   rabbitmq:
     image: "rabbitmq:3.13.2-management"
     container_name: rabbitmq
+    networks:
+      - api-connection
     ports:
       - "5672:5672"
       - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+
+  eureka-server:
+    build: './eureka-server'
+    container_name: eureka-server
+    networks:
+      - api-connection
+    ports:
+      - "8761:8761"
+
+  ms-user:
+    build: './ms-user'
+    container_name: ms-user
+    restart: always
+    networks:
+      - api-connection
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://user-db:3306/user-db
+      - SPRING_DATASOURCE_USERNAME=springuser
+      - SPRING_DATASOURCE_PASSWORD=ThePassword
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - user-db
+      - eureka-server
+
+  ms-property-catalog:
+    build: './ms-property-catalog'
+    container_name: ms-property-catalog
+    restart: always
+    networks:
+      - api-connection
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://properties-db:3306/properties-db
+      - SPRING_DATASOURCE_USERNAME=springuser
+      - SPRING_DATASOURCE_PASSWORD=ThePassword
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - properties-db
+      - eureka-server
+
+  ms-reservation:
+    build: './ms-reservation'
+    container_name: ms-reservation
+    restart: always
+    networks:
+      - api-connection
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://reservation-db:3306/reservation-db
+      - SPRING_DATASOURCE_USERNAME=springuser
+      - SPRING_DATASOURCE_PASSWORD=ThePassword
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - USER_SERVICE_URL=http://ms-user:8081
+      - PROPERTY_SERVICE_URL=http://ms-property-catalog:8082
+    depends_on:
+      - reservation-db
+      - rabbitmq
+      - eureka-server
+
+  notification-service:
+    build: './notification-service'
+    container_name: notification-service
+    restart: always
+    networks:
+      - api-connection
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      - rabbitmq
+      - ms-reservation
+
+networks:
+  api-connection:
+    driver: bridge
+

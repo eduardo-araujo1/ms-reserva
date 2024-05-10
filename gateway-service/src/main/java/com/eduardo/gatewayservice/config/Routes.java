@@ -1,9 +1,9 @@
 package com.eduardo.gatewayservice.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Routes {
@@ -19,4 +19,5 @@ public class Routes {
                         .uri("http://localhost:8083"))
                 .build();
     }
+
 }
