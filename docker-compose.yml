@@ -139,6 +139,27 @@ services:
       - rabbitmq
       - ms-reservation
 
+  gateway-service:
+    build: './gateway-service'
+    container_name: gateway-service
+    restart: always
+    networks:
+      - api-connection
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_APPLICATION_NAME=gateway-service
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - USER_SERVICE_URL=http://ms-user:8081
+      - PROPERTY_SERVICE_URL=http://ms-property-catalog:8082
+      - RESERVATION_SERVICE_URL=http://ms-reservation:8083
+    depends_on:
+      - eureka-server
+      - ms-user
+      - ms-property-catalog
+      - ms-reservation
+      - notification-service
+
 networks:
   api-connection:
     driver: bridge
