@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -66,8 +67,9 @@ public class ReservationService {
     }
 
     private void isDateAvailable(LocalDate checkInDate, LocalDate checkOutDate, String propertyId) {
-        boolean dateAvailable = !repository.existsByCheckInDateAndCheckOutDateAndPropertyId(checkInDate, checkOutDate, propertyId);
-        if (!dateAvailable) {
+        List<Reservation> overlappingReservations = repository.findOverlappingReservations(propertyId, checkInDate, checkOutDate);
+
+        if (!overlappingReservations.isEmpty()) {
             throw new ReservationDateUnavailableException("Data de reserva indisponível. Já existe uma reserva para este período.");
         }
     }

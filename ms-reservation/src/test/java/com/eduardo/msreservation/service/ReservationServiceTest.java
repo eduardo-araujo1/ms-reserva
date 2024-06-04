@@ -21,8 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -98,15 +97,24 @@ class ReservationServiceTest {
         PropertyInfoDto propertyInfoDto = new PropertyInfoDto("propertyId", BigDecimal.valueOf(250.00));
         UserInfoDto userInfoDto = new UserInfoDto("userId", "Teste", "teste@email.com");
 
+
         when(propertyClient.getPropertyDetails(anyString())).thenReturn(propertyInfoDto);
         when(userClient.getUserDetails(anyString())).thenReturn(userInfoDto);
         when(converter.toModel(any(ReservationRequestDto.class))).thenReturn(new Reservation());
-        when(repository.existsByCheckInDateAndCheckOutDateAndPropertyId(any(LocalDate.class), any(LocalDate.class), anyString())).thenReturn(true);
 
+        // Criando uma lista com pelo menos uma reserva para simular a sobreposição de datas
+        List<Reservation> overlappingReservations = new ArrayList<>();
+        overlappingReservations.add(new Reservation());
+        when(repository.findOverlappingReservations(anyString(), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(overlappingReservations);
+
+        // Executando o método que você deseja testar
+        // Aqui você espera que uma exceção seja lançada, pois deveria haver sobreposição de datas
         assertThrows(ReservationDateUnavailableException.class, () -> {
             service.createReservation(dto);
         });
 
+        // Verificando se repository.save nunca foi chamado
         verify(repository, never()).save(any(Reservation.class));
     }
 

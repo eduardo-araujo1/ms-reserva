@@ -29,7 +29,7 @@ Este repositório contém a implementação de uma arquitetura de microsserviço
 ## Execução do projeto
 
 - Antes de iniciar os serviços, você precisa construir os artefatos Maven para seus microserviços. Execute o seguinte comando na pasta raiz para cada microserviço:
-  `mvn clean package`
+  `mvn install -DskipTests`
 - Agora basta  executar o comando no diretório raiz do repositório:
   `docker-compose up --build -d`
 
