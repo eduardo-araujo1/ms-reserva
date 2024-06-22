@@ -102,19 +102,15 @@ class ReservationServiceTest {
         when(userClient.getUserDetails(anyString())).thenReturn(userInfoDto);
         when(converter.toModel(any(ReservationRequestDto.class))).thenReturn(new Reservation());
 
-        // Criando uma lista com pelo menos uma reserva para simular a sobreposição de datas
         List<Reservation> overlappingReservations = new ArrayList<>();
         overlappingReservations.add(new Reservation());
         when(repository.findOverlappingReservations(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(overlappingReservations);
 
-        // Executando o método que você deseja testar
-        // Aqui você espera que uma exceção seja lançada, pois deveria haver sobreposição de datas
         assertThrows(ReservationDateUnavailableException.class, () -> {
             service.createReservation(dto);
         });
 
-        // Verificando se repository.save nunca foi chamado
         verify(repository, never()).save(any(Reservation.class));
     }
 
